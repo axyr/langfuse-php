@@ -1,0 +1,18 @@
+{
+    "preset": "per",
+    "rules": {
+        "declare_strict_types": true,
+        "trailing_comma_in_multiline": {
+            "elements": ["arguments", "arrays", "match", "parameters"]
+        },
+        "new_with_parentheses": {
+            "anonymous_class": true,
+            "named_class": true
+        },
+        "simplified_null_return": true,
+        "no_unused_imports": true,
+        "ordered_imports": {
+            "sort_algorithm": "alpha"
+        }
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "name": "langfuse/langfuse-php",
+    "description": "Langfuse PHP SDK for Laravel",
+    "type": "library",
+    "require": {
+        "php": "^8.4"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Langfuse\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "pestphp/pest": "^4.0",
+        "orchestra/testbench": "^11.0",
+        "larastan/larastan": "^3.0",
+        "laravel/pint": "^1.0",
+        "phpmd/phpmd": "^2.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        },
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
