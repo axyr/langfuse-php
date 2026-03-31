@@ -13,6 +13,8 @@ readonly class LangfuseConfig
         public bool $enabled = true,
         public int $flushAt = 10,
         public int $requestTimeout = 15,
+        public int $promptCacheTtl = 60,
+        public bool $prismEnabled = false,
     ) {}
 
     /**
@@ -21,13 +23,37 @@ readonly class LangfuseConfig
     public static function fromArray(array $config): self
     {
         return new self(
-            publicKey: strval($config['public_key'] ?? ''),
-            secretKey: strval($config['secret_key'] ?? ''),
-            baseUrl: strval($config['base_url'] ?? 'https://cloud.langfuse.com'),
+            publicKey: self::parseString($config['public_key'] ?? null, ''),
+            secretKey: self::parseString($config['secret_key'] ?? null, ''),
+            baseUrl: self::parseString($config['base_url'] ?? null, 'https://cloud.langfuse.com'),
             enabled: self::parseBool($config['enabled'] ?? true),
-            flushAt: intval($config['flush_at'] ?? 10),
-            requestTimeout: intval($config['request_timeout'] ?? 15),
+            flushAt: self::parseInt($config['flush_at'] ?? null, 10),
+            requestTimeout: self::parseInt($config['request_timeout'] ?? null, 15),
+            promptCacheTtl: self::parseInt($config['prompt_cache_ttl'] ?? null, 60),
+            prismEnabled: self::parseBool($config['prism_enabled'] ?? false),
         );
+    }
+
+    private static function parseString(mixed $value, string $default): string
+    {
+        if (is_string($value)) {
+            return $value;
+        }
+
+        return $default;
+    }
+
+    private static function parseInt(mixed $value, int $default): int
+    {
+        if (is_int($value)) {
+            return $value;
+        }
+
+        if (is_string($value) || is_float($value)) {
+            return (int) $value;
+        }
+
+        return $default;
     }
 
     private static function parseBool(mixed $value): bool
@@ -36,7 +62,11 @@ readonly class LangfuseConfig
             return $value;
         }
 
-        return ! in_array(strtolower(strval($value)), ['false', '0', 'no', 'off', ''], true);
+        if (! is_string($value)) {
+            return (bool) $value;
+        }
+
+        return ! in_array(strtolower($value), ['false', '0', 'no', 'off', ''], true);
     }
 
     public function authHeader(): string
@@ -47,5 +77,10 @@ readonly class LangfuseConfig
     public function ingestionUrl(): string
     {
         return rtrim($this->baseUrl, '/') . '/api/public/ingestion';
+    }
+
+    public function promptsUrl(string $name): string
+    {
+        return rtrim($this->baseUrl, '/') . '/api/public/v2/prompts/' . urlencode($name);
     }
 }

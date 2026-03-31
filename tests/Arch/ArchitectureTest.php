@@ -33,9 +33,12 @@ arch('dtos do not depend on Laravel')
     ->ignoring('Langfuse\Enums')
     ->ignoring('Langfuse\Dto');
 
-arch('only api client uses Http facade')
+arch('only api clients use Http facade')
     ->expect('Illuminate\Support\Facades\Http')
-    ->toOnlyBeUsedIn('Langfuse\Api\IngestionApiClient');
+    ->toOnlyBeUsedIn([
+        'Langfuse\Api\IngestionApiClient',
+        'Langfuse\Api\PromptApiClient',
+    ]);
 
 arch('facade extends base facade')
     ->expect('Langfuse\LangfuseFacade')
@@ -52,3 +55,31 @@ arch('dtos implement serializable interface')
 arch('client implements client interface')
     ->expect('Langfuse\LangfuseClient')
     ->toImplement('Langfuse\Contracts\LangfuseClientInterface');
+
+arch('prompt dtos implement prompt interface')
+    ->expect('Langfuse\Dto\TextPrompt')
+    ->toImplement('Langfuse\Contracts\PromptInterface');
+
+arch('chat prompt dtos implement prompt interface')
+    ->expect('Langfuse\Dto\ChatPrompt')
+    ->toImplement('Langfuse\Contracts\PromptInterface');
+
+arch('exceptions extend RuntimeException')
+    ->expect('Langfuse\Exceptions')
+    ->toExtend('RuntimeException');
+
+arch('fake implements client interface')
+    ->expect('Langfuse\Testing\LangfuseFake')
+    ->toImplement('Langfuse\Contracts\LangfuseClientInterface');
+
+arch('recording batcher implements batcher interface')
+    ->expect('Langfuse\Testing\RecordingEventBatcher')
+    ->toImplement('Langfuse\Contracts\EventBatcherInterface');
+
+arch('tracing provider extends prism provider')
+    ->expect('Langfuse\Prism\TracingProvider')
+    ->toExtend('Prism\Prism\Providers\Provider');
+
+arch('tracing manager extends prism manager')
+    ->expect('Langfuse\Prism\TracingPrismManager')
+    ->toExtend('Prism\Prism\PrismManager');

@@ -7,8 +7,11 @@ use Langfuse\Config\LangfuseConfig;
 use Langfuse\Contracts\EventBatcherInterface;
 use Langfuse\Contracts\IngestionApiClientInterface;
 use Langfuse\Contracts\LangfuseClientInterface;
+use Langfuse\Contracts\PromptApiClientInterface;
+use Langfuse\Contracts\PromptCacheInterface;
 use Langfuse\LangfuseClient;
 use Langfuse\LangfuseServiceProvider;
+use Langfuse\Prompt\PromptManager;
 
 it('registers the service provider', function () {
     expect($this->app->getProviders(LangfuseServiceProvider::class))->not->toBeEmpty();
@@ -58,6 +61,27 @@ it('uses NullEventBatcher when disabled', function () {
     $batcher = $this->app->make(EventBatcherInterface::class);
 
     expect($batcher)->toBeInstanceOf(NullEventBatcher::class);
+});
+
+it('binds PromptApiClientInterface as singleton', function () {
+    $client1 = $this->app->make(PromptApiClientInterface::class);
+    $client2 = $this->app->make(PromptApiClientInterface::class);
+
+    expect($client1)->toBe($client2);
+});
+
+it('binds PromptCacheInterface as singleton', function () {
+    $cache1 = $this->app->make(PromptCacheInterface::class);
+    $cache2 = $this->app->make(PromptCacheInterface::class);
+
+    expect($cache1)->toBe($cache2);
+});
+
+it('binds PromptManager as singleton', function () {
+    $manager1 = $this->app->make(PromptManager::class);
+    $manager2 = $this->app->make(PromptManager::class);
+
+    expect($manager1)->toBe($manager2);
 });
 
 it('reads config from environment', function () {

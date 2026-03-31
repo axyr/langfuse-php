@@ -127,8 +127,8 @@ dataset('usage bodies', function () {
     ];
 
     yield 'cost usage' => [
-        new Usage(inputCost: 10, outputCost: 20, totalCost: 30),
-        ['inputCost' => 10, 'outputCost' => 20, 'totalCost' => 30],
+        new Usage(inputCost: 0.0005, outputCost: 0.0015, totalCost: 0.002),
+        ['inputCost' => 0.0005, 'outputCost' => 0.0015, 'totalCost' => 0.002],
     ];
 });
 

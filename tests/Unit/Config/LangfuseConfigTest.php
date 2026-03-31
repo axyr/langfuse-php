@@ -12,6 +12,8 @@ it('can be constructed with all parameters', function () {
         enabled: false,
         flushAt: 20,
         requestTimeout: 30,
+        promptCacheTtl: 120,
+        prismEnabled: true,
     );
 
     expect($config->publicKey)->toBe('pk-test')
@@ -19,7 +21,9 @@ it('can be constructed with all parameters', function () {
         ->and($config->baseUrl)->toBe('https://custom.langfuse.com')
         ->and($config->enabled)->toBeFalse()
         ->and($config->flushAt)->toBe(20)
-        ->and($config->requestTimeout)->toBe(30);
+        ->and($config->requestTimeout)->toBe(30)
+        ->and($config->promptCacheTtl)->toBe(120)
+        ->and($config->prismEnabled)->toBeTrue();
 });
 
 it('has sensible defaults', function () {
@@ -28,7 +32,9 @@ it('has sensible defaults', function () {
     expect($config->baseUrl)->toBe('https://cloud.langfuse.com')
         ->and($config->enabled)->toBeTrue()
         ->and($config->flushAt)->toBe(10)
-        ->and($config->requestTimeout)->toBe(15);
+        ->and($config->requestTimeout)->toBe(15)
+        ->and($config->promptCacheTtl)->toBe(60)
+        ->and($config->prismEnabled)->toBeFalse();
 });
 
 it('can be created from array', function () {
@@ -39,6 +45,8 @@ it('can be created from array', function () {
         'enabled' => false,
         'flush_at' => 25,
         'request_timeout' => 20,
+        'prompt_cache_ttl' => 90,
+        'prism_enabled' => true,
     ]);
 
     expect($config->publicKey)->toBe('pk-arr')
@@ -46,7 +54,9 @@ it('can be created from array', function () {
         ->and($config->baseUrl)->toBe('https://arr.langfuse.com')
         ->and($config->enabled)->toBeFalse()
         ->and($config->flushAt)->toBe(25)
-        ->and($config->requestTimeout)->toBe(20);
+        ->and($config->requestTimeout)->toBe(20)
+        ->and($config->promptCacheTtl)->toBe(90)
+        ->and($config->prismEnabled)->toBeTrue();
 });
 
 it('uses defaults for missing array keys', function () {
@@ -106,4 +116,39 @@ it('parses string zero as disabled in fromArray', function () {
     ]);
 
     expect($config->enabled)->toBeFalse();
+});
+
+it('generates correct prompts url', function () {
+    $config = new LangfuseConfig(publicKey: 'pk', secretKey: 'sk', baseUrl: 'https://cloud.langfuse.com');
+
+    expect($config->promptsUrl('movie-critic'))->toBe('https://cloud.langfuse.com/api/public/v2/prompts/movie-critic');
+});
+
+it('encodes prompt name in url', function () {
+    $config = new LangfuseConfig(publicKey: 'pk', secretKey: 'sk');
+
+    expect($config->promptsUrl('my prompt'))->toBe('https://cloud.langfuse.com/api/public/v2/prompts/my+prompt');
+});
+
+it('parses prompt_cache_ttl from string in fromArray', function () {
+    $config = LangfuseConfig::fromArray([
+        'prompt_cache_ttl' => '120',
+    ]);
+
+    expect($config->promptCacheTtl)->toBe(120);
+});
+
+it('parses prism_enabled from string in fromArray', function () {
+    $config = LangfuseConfig::fromArray([
+        'prism_enabled' => 'true',
+    ]);
+
+    expect($config->prismEnabled)->toBeTrue();
+});
+
+it('defaults prompt_cache_ttl and prism_enabled for missing array keys', function () {
+    $config = LangfuseConfig::fromArray([]);
+
+    expect($config->promptCacheTtl)->toBe(60)
+        ->and($config->prismEnabled)->toBeFalse();
 });

@@ -9,4 +9,6 @@ return [
     'enabled' => env('LANGFUSE_ENABLED', true),
     'flush_at' => env('LANGFUSE_FLUSH_AT', 10),
     'request_timeout' => env('LANGFUSE_REQUEST_TIMEOUT', 15),
+    'prompt_cache_ttl' => env('LANGFUSE_PROMPT_CACHE_TTL', 60),
+    'prism_enabled' => env('LANGFUSE_PRISM_ENABLED', false),
 ];

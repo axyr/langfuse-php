@@ -18,18 +18,18 @@ it('can be constructed with all fields', function () {
         output: 200,
         total: 300,
         unit: 'TOKENS',
-        inputCost: 10,
-        outputCost: 20,
-        totalCost: 30,
+        inputCost: 0.0005,
+        outputCost: 0.0015,
+        totalCost: 0.002,
     );
 
     expect($usage->input)->toBe(100)
         ->and($usage->output)->toBe(200)
         ->and($usage->total)->toBe(300)
         ->and($usage->unit)->toBe('TOKENS')
-        ->and($usage->inputCost)->toBe(10)
-        ->and($usage->outputCost)->toBe(20)
-        ->and($usage->totalCost)->toBe(30);
+        ->and($usage->inputCost)->toBe(0.0005)
+        ->and($usage->outputCost)->toBe(0.0015)
+        ->and($usage->totalCost)->toBe(0.002);
 });
 
 it('serializes to array excluding nulls', function () {
@@ -49,7 +49,7 @@ it('serializes to empty array when all null', function () {
 });
 
 it('uses camelCase keys', function () {
-    $usage = new Usage(inputCost: 10, outputCost: 20, totalCost: 30);
+    $usage = new Usage(inputCost: 0.001, outputCost: 0.002, totalCost: 0.003);
 
     expect($usage->toArray())->toHaveKeys(['inputCost', 'outputCost', 'totalCost']);
 });

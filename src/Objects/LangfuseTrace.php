@@ -62,5 +62,4 @@ class LangfuseTrace
             body: $score->withTraceId($this->body->id),
         ));
     }
-
 }

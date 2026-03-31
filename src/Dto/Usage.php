@@ -13,9 +13,9 @@ readonly class Usage implements SerializableInterface
         public ?int $output = null,
         public ?int $total = null,
         public ?string $unit = null,
-        public ?int $inputCost = null,
-        public ?int $outputCost = null,
-        public ?int $totalCost = null,
+        public ?float $inputCost = null,
+        public ?float $outputCost = null,
+        public ?float $totalCost = null,
     ) {}
 
     /**

@@ -17,4 +17,14 @@ interface LangfuseClientInterface
     public function flush(): void;
 
     public function isEnabled(): bool;
+
+    /**
+     * @param string|array<int, array<string, string>>|null $fallback
+     */
+    public function prompt(
+        string $name,
+        ?int $version = null,
+        ?string $label = null,
+        string|array|null $fallback = null,
+    ): PromptInterface;
 }
