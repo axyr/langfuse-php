@@ -28,8 +28,8 @@ Langfuse solves this by providing a tracing and analytics platform purpose-built
 
 ## Requirements
 
-- PHP 8.4+
-- Laravel 13
+- PHP 8.2+
+- Laravel 12 or 13
 
 ## Installation
 
