@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Langfuse\Concerns;
 
-use Illuminate\Support\Str;
 use Langfuse\Contracts\SerializableInterface;
+use Langfuse\Dto\IdGenerator;
 use Langfuse\Dto\IngestionEvent;
 use Langfuse\Enums\EventType;
 
@@ -13,12 +13,12 @@ trait CreatesIngestionEvents
 {
     protected function generateId(): string
     {
-        return (string) Str::uuid();
+        return IdGenerator::uuid();
     }
 
     protected function generateTimestamp(): string
     {
-        return now()->toIso8601ZuluString();
+        return IdGenerator::timestamp();
     }
 
     protected function createIngestionEvent(EventType $type, SerializableInterface $body): IngestionEvent

@@ -89,6 +89,46 @@ it('creates child event with correct trace id', function () {
     $trace->event(new EventBody(id: 'event-1', name: 'child-event'));
 });
 
+it('enqueues trace-create event with same id on update', function () {
+    $batcher = Mockery::mock(EventBatcherInterface::class);
+    $batcher->shouldReceive('enqueue')
+        ->twice() // initial create + update
+        ->with(Mockery::on(function (IngestionEvent $event) {
+            return $event->type === EventType::TraceCreate
+                && $event->body instanceof TraceBody
+                && $event->body->id === 'trace-1';
+        }));
+
+    $trace = new LangfuseTrace(
+        body: new TraceBody(id: 'trace-1', name: 'original'),
+        batcher: $batcher,
+    );
+
+    $trace->update(new TraceBody(output: 'final result', metadata: ['key' => 'value']));
+});
+
+it('preserves trace id on update ignoring body id', function () {
+    $events = [];
+    $batcher = Mockery::mock(EventBatcherInterface::class);
+    $batcher->shouldReceive('enqueue')
+        ->twice()
+        ->with(Mockery::on(function (IngestionEvent $event) use (&$events) {
+            $events[] = $event;
+
+            return true;
+        }));
+
+    $trace = new LangfuseTrace(
+        body: new TraceBody(id: 'trace-1', name: 'original'),
+        batcher: $batcher,
+    );
+
+    $trace->update(new TraceBody(id: 'ignored-id', output: 'result'));
+
+    expect($events[1]->body->id)->toBe('trace-1')
+        ->and($events[1]->body->output)->toBe('result');
+});
+
 it('creates score referencing the trace', function () {
     $batcher = Mockery::mock(EventBatcherInterface::class);
     $batcher->shouldReceive('enqueue')

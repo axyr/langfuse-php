@@ -90,7 +90,7 @@ readonly class GenerationBody implements SerializableInterface
             'version' => $this->version,
             'model' => $this->model,
             'modelParameters' => $this->modelParameters,
-            'usage' => $this->usage?->toArray() ?: null,
+            'usage' => $this->usage?->toArray(),
             'promptName' => $this->promptName,
             'promptVersion' => $this->promptVersion,
             'environment' => $this->environment,

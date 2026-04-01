@@ -31,6 +31,27 @@ class LangfuseTrace
         return $this->body->id;
     }
 
+    public function update(TraceBody $body): void
+    {
+        $this->batcher->enqueue($this->createIngestionEvent(
+            type: EventType::TraceCreate,
+            body: new TraceBody(
+                id: $this->body->id,
+                name: $body->name,
+                userId: $body->userId,
+                sessionId: $body->sessionId,
+                release: $body->release,
+                version: $body->version,
+                input: $body->input,
+                output: $body->output,
+                metadata: $body->metadata,
+                tags: $body->tags,
+                public: $body->public,
+                environment: $body->environment,
+            ),
+        ));
+    }
+
     public function span(SpanBody $span): LangfuseSpan
     {
         return new LangfuseSpan(

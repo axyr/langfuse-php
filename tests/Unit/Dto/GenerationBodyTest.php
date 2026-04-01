@@ -133,8 +133,9 @@ it('implements SerializableInterface', function () {
     expect($gen)->toBeInstanceOf(\Langfuse\Contracts\SerializableInterface::class);
 });
 
-it('excludes empty usage from serialization', function () {
+it('includes empty usage in serialization when explicitly set', function () {
     $gen = new GenerationBody(id: 'gen-1', usage: new Usage());
 
-    expect($gen->toArray())->not->toHaveKey('usage');
+    expect($gen->toArray())->toHaveKey('usage')
+        ->and($gen->toArray()['usage'])->toBe([]);
 });
