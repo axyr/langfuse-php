@@ -16,6 +16,8 @@ class LangfuseFake implements LangfuseClientInterface
 {
     private readonly RecordingEventBatcher $batcher;
 
+    private ?LangfuseTrace $currentTrace = null;
+
     /** @var array<PromptInterface> */
     private array $promptResponses = [];
 
@@ -30,6 +32,16 @@ class LangfuseFake implements LangfuseClientInterface
             body: $body,
             batcher: $this->batcher,
         );
+    }
+
+    public function currentTrace(): ?LangfuseTrace
+    {
+        return $this->currentTrace;
+    }
+
+    public function setCurrentTrace(LangfuseTrace $trace): void
+    {
+        $this->currentTrace = $trace;
     }
 
     public function score(ScoreBody $body): void

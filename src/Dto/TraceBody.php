@@ -8,12 +8,16 @@ use Langfuse\Contracts\SerializableInterface;
 
 readonly class TraceBody implements SerializableInterface
 {
+    public string $id;
+
+    public string $timestamp;
+
     /**
      * @param array<string, mixed>|null $metadata
      * @param array<string>|null $tags
      */
     public function __construct(
-        public string $id,
+        ?string $id = null,
         public ?string $name = null,
         public ?string $userId = null,
         public ?string $sessionId = null,
@@ -24,7 +28,12 @@ readonly class TraceBody implements SerializableInterface
         public ?array $metadata = null,
         public ?array $tags = null,
         public ?bool $public = null,
-    ) {}
+        ?string $timestamp = null,
+        public ?string $environment = null,
+    ) {
+        $this->id = $id ?? IdGenerator::uuid();
+        $this->timestamp = $timestamp ?? IdGenerator::timestamp();
+    }
 
     /**
      * @return array<string, mixed>
@@ -33,6 +42,7 @@ readonly class TraceBody implements SerializableInterface
     {
         return array_filter([
             'id' => $this->id,
+            'timestamp' => $this->timestamp,
             'name' => $this->name,
             'userId' => $this->userId,
             'sessionId' => $this->sessionId,
@@ -43,6 +53,7 @@ readonly class TraceBody implements SerializableInterface
             'metadata' => $this->metadata,
             'tags' => $this->tags,
             'public' => $this->public,
+            'environment' => $this->environment,
         ], fn(mixed $value): bool => $value !== null);
     }
 }

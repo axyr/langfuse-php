@@ -5,12 +5,16 @@ declare(strict_types=1);
 use Langfuse\Dto\SpanBody;
 use Langfuse\Enums\ObservationLevel;
 
-it('can be constructed with required fields', function () {
+it('auto-generates id when not provided', function () {
+    $span = new SpanBody();
+
+    expect($span->id)->toMatch('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/');
+});
+
+it('uses provided id when given', function () {
     $span = new SpanBody(id: 'span-1');
 
-    expect($span->id)->toBe('span-1')
-        ->and($span->traceId)->toBeNull()
-        ->and($span->endTime)->toBeNull();
+    expect($span->id)->toBe('span-1');
 });
 
 it('can be constructed with all fields', function () {
@@ -27,11 +31,13 @@ it('can be constructed with all fields', function () {
         statusMessage: 'OK',
         parentObservationId: 'span-0',
         version: '2',
+        environment: 'staging',
     );
 
     expect($span->endTime)->toBe('2024-01-01T00:00:01Z')
         ->and($span->parentObservationId)->toBe('span-0')
-        ->and($span->level)->toBe(ObservationLevel::DEBUG);
+        ->and($span->level)->toBe(ObservationLevel::DEBUG)
+        ->and($span->environment)->toBe('staging');
 });
 
 it('creates new instance with trace id via withTraceId', function () {
@@ -43,6 +49,15 @@ it('creates new instance with trace id via withTraceId', function () {
         ->and($withTrace->name)->toBe('test')
         ->and($withTrace->endTime)->toBe('2024-01-01T00:00:01Z')
         ->and($span->traceId)->toBeNull();
+});
+
+it('preserves environment through withContext', function () {
+    $span = new SpanBody(id: 'span-1', environment: 'production');
+    $withContext = $span->withContext('trace-1', 'parent-1');
+
+    expect($withContext->environment)->toBe('production')
+        ->and($withContext->traceId)->toBe('trace-1')
+        ->and($withContext->parentObservationId)->toBe('parent-1');
 });
 
 it('serializes to array with camelCase keys excluding nulls', function () {
@@ -61,6 +76,12 @@ it('serializes to array with camelCase keys excluding nulls', function () {
         'startTime' => '2024-01-01T00:00:00Z',
         'endTime' => '2024-01-01T00:00:01Z',
     ]);
+});
+
+it('includes environment in serialization', function () {
+    $span = new SpanBody(id: 'span-1', environment: 'production');
+
+    expect($span->toArray()['environment'])->toBe('production');
 });
 
 it('implements SerializableInterface', function () {

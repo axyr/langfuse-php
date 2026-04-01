@@ -22,7 +22,7 @@ it('can be constructed', function () {
 });
 
 it('serializes to array with type as string', function () {
-    $body = new TraceBody(id: 'trace-1', name: 'test');
+    $body = new TraceBody(id: 'trace-1', name: 'test', timestamp: '2024-01-01T00:00:00Z');
     $event = new IngestionEvent(
         id: 'evt-1',
         type: EventType::TraceCreate,
@@ -36,12 +36,12 @@ it('serializes to array with type as string', function () {
         'id' => 'evt-1',
         'type' => 'trace-create',
         'timestamp' => '2024-01-01T00:00:00Z',
-        'body' => ['id' => 'trace-1', 'name' => 'test'],
+        'body' => ['id' => 'trace-1', 'timestamp' => '2024-01-01T00:00:00Z', 'name' => 'test'],
     ]);
 });
 
 it('serializes body via its toArray method', function () {
-    $body = new TraceBody(id: 'trace-1');
+    $body = new TraceBody(id: 'trace-1', timestamp: '2024-01-01T00:00:00Z');
     $event = new IngestionEvent(
         id: 'evt-1',
         type: EventType::TraceCreate,
@@ -49,5 +49,5 @@ it('serializes body via its toArray method', function () {
         body: $body,
     );
 
-    expect($event->toArray()['body'])->toBe(['id' => 'trace-1']);
+    expect($event->toArray()['body'])->toBe(['id' => 'trace-1', 'timestamp' => '2024-01-01T00:00:00Z']);
 });

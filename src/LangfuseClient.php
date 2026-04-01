@@ -19,6 +19,8 @@ class LangfuseClient implements LangfuseClientInterface
 {
     use CreatesIngestionEvents;
 
+    private ?LangfuseTrace $currentTrace = null;
+
     public function __construct(
         private readonly EventBatcherInterface $batcher,
         private readonly LangfuseConfig $config,
@@ -31,6 +33,16 @@ class LangfuseClient implements LangfuseClientInterface
             body: $body,
             batcher: $this->batcher,
         );
+    }
+
+    public function currentTrace(): ?LangfuseTrace
+    {
+        return $this->currentTrace;
+    }
+
+    public function setCurrentTrace(LangfuseTrace $trace): void
+    {
+        $this->currentTrace = $trace;
     }
 
     public function score(ScoreBody $body): void

@@ -9,11 +9,13 @@ use Langfuse\Enums\ObservationLevel;
 
 readonly class SpanBody implements SerializableInterface
 {
+    public string $id;
+
     /**
      * @param array<string, mixed>|null $metadata
      */
     public function __construct(
-        public string $id,
+        ?string $id = null,
         public ?string $traceId = null,
         public ?string $name = null,
         public ?string $startTime = null,
@@ -25,7 +27,10 @@ readonly class SpanBody implements SerializableInterface
         public ?string $statusMessage = null,
         public ?string $parentObservationId = null,
         public ?string $version = null,
-    ) {}
+        public ?string $environment = null,
+    ) {
+        $this->id = $id ?? IdGenerator::uuid();
+    }
 
     public function withTraceId(string $traceId): self
     {
@@ -47,6 +52,7 @@ readonly class SpanBody implements SerializableInterface
             statusMessage: $this->statusMessage,
             parentObservationId: $parentObservationId,
             version: $this->version,
+            environment: $this->environment,
         );
     }
 
@@ -68,6 +74,7 @@ readonly class SpanBody implements SerializableInterface
             'statusMessage' => $this->statusMessage,
             'parentObservationId' => $this->parentObservationId,
             'version' => $this->version,
+            'environment' => $this->environment,
         ], fn(mixed $value): bool => $value !== null);
     }
 }

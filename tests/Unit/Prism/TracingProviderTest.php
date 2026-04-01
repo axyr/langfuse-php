@@ -275,6 +275,51 @@ it('passes through stream events unmodified', function () {
         ->and($streamEvents[1])->toBeInstanceOf(StreamEndEvent::class);
 });
 
+it('reuses existing trace across multiple calls', function () {
+    [$langfuse, $batcher] = makeTracingClient();
+
+    $innerProvider = Mockery::mock(Provider::class);
+    $innerProvider->shouldReceive('text')
+        ->twice()
+        ->andReturn(makeTextResponse());
+
+    $provider = new TracingProvider($innerProvider, $langfuse);
+
+    // First call creates a trace
+    $provider->text(makeTextRequest());
+
+    // Second call should reuse the same trace
+    $provider->text(makeTextRequest());
+
+    $traceEvents = collect($batcher->events())->filter(fn(IngestionEvent $e) => $e->type->value === 'trace-create');
+    $generationEvents = collect($batcher->events())->filter(fn(IngestionEvent $e) => $e->type->value === 'generation-create');
+
+    // Only 1 trace created, but 2 generations
+    expect($traceEvents)->toHaveCount(1)
+        ->and($generationEvents)->toHaveCount(2);
+
+    // Both generations should reference the same trace
+    $traceId = $traceEvents->first()->body->toArray()['id'];
+    $genTraceIds = $generationEvents->map(fn(IngestionEvent $e) => $e->body->toArray()['traceId'])->all();
+
+    expect($genTraceIds)->each->toBe($traceId);
+});
+
+it('creates new trace when no current trace exists', function () {
+    [$langfuse, $batcher] = makeTracingClient();
+
+    $innerProvider = Mockery::mock(Provider::class);
+    $innerProvider->shouldReceive('text')
+        ->once()
+        ->andReturn(makeTextResponse());
+
+    $provider = new TracingProvider($innerProvider, $langfuse);
+    $provider->text(makeTextRequest());
+
+    // Should have set current trace on the client
+    expect($langfuse->currentTrace())->not->toBeNull();
+});
+
 it('delegates embeddings to inner provider', function () {
     [$langfuse, $batcher] = makeTracingClient();
 

@@ -10,6 +10,8 @@ use Langfuse\Testing\LangfuseFake;
 
 /**
  * @method static \Langfuse\Objects\LangfuseTrace trace(\Langfuse\Dto\TraceBody $body)
+ * @method static \Langfuse\Objects\LangfuseTrace|null currentTrace()
+ * @method static void setCurrentTrace(\Langfuse\Objects\LangfuseTrace $trace)
  * @method static void score(\Langfuse\Dto\ScoreBody $body)
  * @method static void flush()
  * @method static bool isEnabled()

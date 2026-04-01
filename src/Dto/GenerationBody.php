@@ -9,12 +9,14 @@ use Langfuse\Enums\ObservationLevel;
 
 readonly class GenerationBody implements SerializableInterface
 {
+    public string $id;
+
     /**
      * @param array<string, mixed>|null $metadata
      * @param array<string, mixed>|null $modelParameters
      */
     public function __construct(
-        public string $id,
+        ?string $id = null,
         public ?string $traceId = null,
         public ?string $name = null,
         public ?string $startTime = null,
@@ -30,7 +32,12 @@ readonly class GenerationBody implements SerializableInterface
         public ?string $model = null,
         public ?array $modelParameters = null,
         public ?Usage $usage = null,
-    ) {}
+        public ?string $promptName = null,
+        public ?int $promptVersion = null,
+        public ?string $environment = null,
+    ) {
+        $this->id = $id ?? IdGenerator::uuid();
+    }
 
     public function withTraceId(string $traceId): self
     {
@@ -56,6 +63,9 @@ readonly class GenerationBody implements SerializableInterface
             model: $this->model,
             modelParameters: $this->modelParameters,
             usage: $this->usage,
+            promptName: $this->promptName,
+            promptVersion: $this->promptVersion,
+            environment: $this->environment,
         );
     }
 
@@ -81,6 +91,9 @@ readonly class GenerationBody implements SerializableInterface
             'model' => $this->model,
             'modelParameters' => $this->modelParameters,
             'usage' => $this->usage?->toArray() ?: null,
+            'promptName' => $this->promptName,
+            'promptVersion' => $this->promptVersion,
+            'environment' => $this->environment,
         ], fn(mixed $value): bool => $value !== null);
     }
 }

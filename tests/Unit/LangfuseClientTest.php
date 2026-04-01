@@ -37,6 +37,18 @@ it('creates a trace and returns LangfuseTrace', function () {
         ->and($trace->getId())->toBe('trace-1');
 });
 
+it('creates a trace with auto-generated id', function () {
+    $batcher = Mockery::mock(EventBatcherInterface::class);
+    $batcher->shouldReceive('enqueue')->once();
+
+    $client = createClient($batcher);
+
+    $trace = $client->trace(new TraceBody(name: 'test'));
+
+    expect($trace)->toBeInstanceOf(LangfuseTrace::class)
+        ->and($trace->getId())->toMatch('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/');
+});
+
 it('enqueues score event', function () {
     $batcher = Mockery::mock(EventBatcherInterface::class);
     $batcher->shouldReceive('enqueue')
@@ -51,9 +63,9 @@ it('enqueues score event', function () {
     $client = createClient($batcher);
 
     $client->score(new ScoreBody(
+        name: 'accuracy',
         id: 'score-1',
         traceId: 'trace-1',
-        name: 'accuracy',
         value: 0.95,
     ));
 });
@@ -65,6 +77,20 @@ it('delegates flush to batcher', function () {
     $client = createClient($batcher);
 
     $client->flush();
+});
+
+it('stores and returns current trace', function () {
+    $batcher = Mockery::mock(EventBatcherInterface::class);
+    $batcher->shouldReceive('enqueue')->once();
+
+    $client = createClient($batcher);
+
+    expect($client->currentTrace())->toBeNull();
+
+    $trace = $client->trace(new TraceBody(name: 'test'));
+    $client->setCurrentTrace($trace);
+
+    expect($client->currentTrace())->toBe($trace);
 });
 
 it('reports enabled state from config', function () {

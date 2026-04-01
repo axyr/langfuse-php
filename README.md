@@ -16,7 +16,9 @@ Langfuse solves this by providing a tracing and analytics platform purpose-built
 - **Scoring** - attach numeric, boolean, or categorical quality scores to traces and observations
 - **Prompt management** - fetch, cache, and compile prompts from Langfuse with stale-while-revalidate caching and fallback support
 - **Prism integration** - optional auto-instrumentation for [Prism](https://github.com/prism-php/prism) LLM calls
+- **Per-request trace context** - optional middleware auto-creates a request trace; all Prism calls nest under it
 - **Automatic batching** - events are queued and sent in batches to minimize HTTP overhead
+- **Octane compatible** - scoped bindings reset state per request in long-running processes
 - **Graceful degradation** - API failures are caught and logged, never thrown; a disabled mode silently no-ops
 - **Auto-flush on shutdown** - queued events are flushed automatically when the application terminates
 - **Facade support** - use `Langfuse::trace(...)` anywhere in your code
@@ -25,7 +27,7 @@ Langfuse solves this by providing a tracing and analytics platform purpose-built
 ## Requirements
 
 - PHP 8.4+
-- Laravel 11 or 12
+- Laravel 13
 
 ## Installation
 
@@ -67,12 +69,13 @@ All configuration lives in `config/langfuse.php` and can be overridden via envir
 
 ### Basic trace
 
+IDs and timestamps are auto-generated - just pass the fields you care about:
+
 ```php
 use Langfuse\LangfuseFacade as Langfuse;
 use Langfuse\Dto\TraceBody;
 
 $trace = Langfuse::trace(new TraceBody(
-    id: 'trace-1',
     name: 'chat-request',
     userId: 'user-42',
     metadata: ['environment' => 'production'],
@@ -87,7 +90,6 @@ use Langfuse\Dto\GenerationBody;
 use Langfuse\Dto\Usage;
 
 $generation = $trace->generation(new GenerationBody(
-    id: 'gen-1',
     name: 'chat-completion',
     model: 'gpt-4',
     input: [['role' => 'user', 'content' => 'Explain observability']],
@@ -109,7 +111,6 @@ Use spans to track any operation within a trace - database queries, API calls, p
 use Langfuse\Dto\SpanBody;
 
 $span = $trace->span(new SpanBody(
-    id: 'span-1',
     name: 'retrieve-context',
 ));
 
@@ -123,24 +124,22 @@ $span->end(output: 'Retrieved 5 documents');
 Spans and generations can be nested to represent complex workflows:
 
 ```php
-$trace = Langfuse::trace(new TraceBody(id: 'trace-1', name: 'rag-pipeline'));
+$trace = Langfuse::trace(new TraceBody(name: 'rag-pipeline'));
 
-$retrievalSpan = $trace->span(new SpanBody(id: 'span-retrieval', name: 'retrieval'));
+$retrievalSpan = $trace->span(new SpanBody(name: 'retrieval'));
 
     $embeddingGen = $retrievalSpan->generation(new GenerationBody(
-        id: 'gen-embed',
         name: 'embed-query',
         model: 'text-embedding-3-small',
     ));
     $embeddingGen->end(output: [0.1, 0.2, 0.3], usage: new Usage(input: 8, total: 8));
 
-    $searchSpan = $retrievalSpan->span(new SpanBody(id: 'span-search', name: 'vector-search'));
+    $searchSpan = $retrievalSpan->span(new SpanBody(name: 'vector-search'));
     $searchSpan->end(output: '5 results found');
 
 $retrievalSpan->end(output: 'context ready');
 
 $completionGen = $trace->generation(new GenerationBody(
-    id: 'gen-completion',
     name: 'answer',
     model: 'gpt-4',
     input: [['role' => 'user', 'content' => 'What is RAG?']],
@@ -159,7 +158,6 @@ Lightweight observations for logging discrete moments without a start/end lifecy
 use Langfuse\Dto\EventBody;
 
 $trace->event(new EventBody(
-    id: 'event-1',
     name: 'cache-hit',
     input: ['key' => 'user-profile-42'],
     output: ['cached' => true],
@@ -176,7 +174,6 @@ use Langfuse\Enums\ScoreDataType;
 
 // Score on a trace
 $trace->score(new ScoreBody(
-    id: 'score-1',
     name: 'user-satisfaction',
     value: 4.5,
     dataType: ScoreDataType::NUMERIC,
@@ -185,9 +182,8 @@ $trace->score(new ScoreBody(
 
 // Score without a trace (via client directly)
 Langfuse::score(new ScoreBody(
-    id: 'score-2',
     name: 'hallucination',
-    traceId: 'trace-1',
+    traceId: $trace->getId(),
     value: 0.0,
     dataType: ScoreDataType::BOOLEAN,
 ));
@@ -214,6 +210,30 @@ To flush manually:
 
 ```php
 Langfuse::flush();
+```
+
+### Request middleware
+
+The optional `LangfuseMiddleware` auto-creates a trace for each HTTP request. All Prism LLM calls within that request automatically nest under it as generations:
+
+```php
+// In your route file or middleware group:
+use Langfuse\Http\Middleware\LangfuseMiddleware;
+
+Route::middleware(LangfuseMiddleware::class)->group(function () {
+    Route::post('/chat', ChatController::class);
+});
+```
+
+The middleware sets the trace name to the route name (or `METHOD /path` as fallback), captures the authenticated user ID, and includes request metadata.
+
+You can also set a trace manually for the same nesting behavior:
+
+```php
+$trace = Langfuse::trace(new TraceBody(name: 'my-job'));
+Langfuse::setCurrentTrace($trace);
+
+// Subsequent Prism calls will nest under this trace
 ```
 
 ### Prompt management
@@ -246,7 +266,6 @@ Prompts are cached in-memory with a configurable TTL (`LANGFUSE_PROMPT_CACHE_TTL
 ```php
 $prompt = Langfuse::prompt('movie-critic');
 $generation = $trace->generation(new GenerationBody(
-    id: 'gen-1',
     name: 'review',
     model: 'gpt-4',
     metadata: $prompt->toLinkMetadata(),
@@ -263,6 +282,14 @@ LANGFUSE_PRISM_ENABLED=true
 
 When enabled, the SDK wraps Prism's provider layer to automatically create traces and generations for every `text()`, `structured()`, and `stream()` call - including model parameters, token usage, and error tracking. No code changes required.
 
+Multiple Prism calls within the same request share a single trace. If you use `LangfuseMiddleware`, Prism generations nest under the request trace automatically.
+
+### Octane compatibility
+
+The SDK is compatible with Laravel Octane and other long-running process servers. The `EventBatcher` and `LangfuseClient` use scoped bindings that reset per request, preventing event leakage between requests.
+
+No additional configuration is needed - it works out of the box with Octane, RoadRunner, and FrankenPHP.
+
 ### Testing with fakes
 
 The SDK provides a testing double that records events without making HTTP calls:
@@ -276,8 +303,8 @@ use Langfuse\LangfuseFacade as Langfuse;
 $fake = Langfuse::fake();
 
 // Run your application code...
-$trace = Langfuse::trace(new TraceBody(id: 'trace-1', name: 'test'));
-$trace->generation(new GenerationBody(id: 'gen-1', name: 'chat'));
+$trace = Langfuse::trace(new TraceBody(name: 'test'));
+$trace->generation(new GenerationBody(name: 'chat'));
 
 // Assert what was recorded
 $fake->assertTraceCreated('test')
@@ -331,7 +358,7 @@ Set `LANGFUSE_ENABLED=false` in your `.env.testing` to silently disable all trac
      └─────────────────────┘
 ```
 
-All DTOs are immutable readonly classes. API and batching failures are caught and logged - they never propagate exceptions to your application.
+All DTOs are immutable readonly classes with auto-generated IDs and timestamps. API and batching failures are caught and logged - they never propagate exceptions to your application.
 
 ## Testing
 

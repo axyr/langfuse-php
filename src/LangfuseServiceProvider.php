@@ -29,7 +29,7 @@ class LangfuseServiceProvider extends ServiceProvider
         $this->registerIngestion();
         $this->registerPrompts();
 
-        $this->app->singleton(LangfuseClientInterface::class, LangfuseClient::class);
+        $this->app->scoped(LangfuseClientInterface::class, LangfuseClient::class);
     }
 
     public function boot(): void
@@ -64,7 +64,7 @@ class LangfuseServiceProvider extends ServiceProvider
     {
         $this->app->singleton(IngestionApiClientInterface::class, IngestionApiClient::class);
 
-        $this->app->singleton(EventBatcherInterface::class, function () {
+        $this->app->scoped(EventBatcherInterface::class, function () {
             /** @var LangfuseConfig $config */
             $config = $this->app->make(LangfuseConfig::class);
 

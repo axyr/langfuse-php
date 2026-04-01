@@ -12,6 +12,10 @@ interface LangfuseClientInterface
 {
     public function trace(TraceBody $body): LangfuseTrace;
 
+    public function currentTrace(): ?LangfuseTrace;
+
+    public function setCurrentTrace(LangfuseTrace $trace): void;
+
     public function score(ScoreBody $body): void;
 
     public function flush(): void;

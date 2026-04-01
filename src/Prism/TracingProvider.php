@@ -6,7 +6,6 @@ namespace Langfuse\Prism;
 
 use Generator;
 use Illuminate\Http\Client\RequestException;
-use Illuminate\Support\Str;
 use Langfuse\Contracts\LangfuseClientInterface;
 use Langfuse\Dto\GenerationBody;
 use Langfuse\Dto\TraceBody;
@@ -172,7 +171,6 @@ class TracingProvider extends Provider
         $trace = $this->createTrace($request);
 
         $generation = $trace->generation(new GenerationBody(
-            id: (string) Str::uuid(),
             name: $request->model(),
             model: $request->model(),
             input: $this->extractInput($request),
@@ -198,7 +196,6 @@ class TracingProvider extends Provider
         $trace = $this->createTrace($request, ['error' => $e->getMessage()]);
 
         $generation = $trace->generation(new GenerationBody(
-            id: (string) Str::uuid(),
             name: $request->model(),
             model: $request->model(),
             input: $this->extractInput($request),
@@ -220,8 +217,13 @@ class TracingProvider extends Provider
         TextRequest|StructuredRequest $request,
         array $extraMetadata = [],
     ): \Langfuse\Objects\LangfuseTrace {
-        return $this->langfuse->trace(new TraceBody(
-            id: (string) Str::uuid(),
+        $existing = $this->langfuse->currentTrace();
+
+        if ($existing !== null) {
+            return $existing;
+        }
+
+        $trace = $this->langfuse->trace(new TraceBody(
             name: 'prism-' . $request->model(),
             input: $this->extractInput($request),
             metadata: [
@@ -230,6 +232,10 @@ class TracingProvider extends Provider
                 ...$extraMetadata,
             ],
         ));
+
+        $this->langfuse->setCurrentTrace($trace);
+
+        return $trace;
     }
 
     private function mapUsage(?\Prism\Prism\ValueObjects\Usage $usage): ?Usage

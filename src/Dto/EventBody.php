@@ -9,14 +9,18 @@ use Langfuse\Enums\ObservationLevel;
 
 readonly class EventBody implements SerializableInterface
 {
+    public string $id;
+
+    public string $startTime;
+
     /**
      * @param array<string, mixed>|null $metadata
      */
     public function __construct(
-        public string $id,
+        ?string $id = null,
         public ?string $traceId = null,
         public ?string $name = null,
-        public ?string $startTime = null,
+        ?string $startTime = null,
         public mixed $input = null,
         public mixed $output = null,
         public ?array $metadata = null,
@@ -24,7 +28,11 @@ readonly class EventBody implements SerializableInterface
         public ?string $statusMessage = null,
         public ?string $parentObservationId = null,
         public ?string $version = null,
-    ) {}
+        public ?string $environment = null,
+    ) {
+        $this->id = $id ?? IdGenerator::uuid();
+        $this->startTime = $startTime ?? IdGenerator::timestamp();
+    }
 
     public function withTraceId(string $traceId): self
     {
@@ -45,6 +53,7 @@ readonly class EventBody implements SerializableInterface
             statusMessage: $this->statusMessage,
             parentObservationId: $parentObservationId,
             version: $this->version,
+            environment: $this->environment,
         );
     }
 
@@ -65,6 +74,7 @@ readonly class EventBody implements SerializableInterface
             'statusMessage' => $this->statusMessage,
             'parentObservationId' => $this->parentObservationId,
             'version' => $this->version,
+            'environment' => $this->environment,
         ], fn(mixed $value): bool => $value !== null);
     }
 }

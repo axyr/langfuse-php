@@ -26,7 +26,7 @@ it('serializes to array with batch and metadata', function () {
         id: 'evt-1',
         type: EventType::TraceCreate,
         timestamp: '2024-01-01T00:00:00Z',
-        body: new TraceBody(id: 'trace-1', name: 'test'),
+        body: new TraceBody(id: 'trace-1', name: 'test', timestamp: '2024-01-01T00:00:00Z'),
     );
 
     $batch = new IngestionBatch(
@@ -41,7 +41,7 @@ it('serializes to array with batch and metadata', function () {
             'id' => 'evt-1',
             'type' => 'trace-create',
             'timestamp' => '2024-01-01T00:00:00Z',
-            'body' => ['id' => 'trace-1', 'name' => 'test'],
+            'body' => ['id' => 'trace-1', 'timestamp' => '2024-01-01T00:00:00Z', 'name' => 'test'],
         ])
         ->and($array['metadata'])->toBeObject();
 });

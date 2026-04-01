@@ -38,17 +38,19 @@ it('binds IngestionApiClientInterface as singleton', function () {
     expect($client1)->toBe($client2);
 });
 
-it('binds EventBatcherInterface as singleton', function () {
+it('binds EventBatcherInterface as scoped', function () {
     $batcher1 = $this->app->make(EventBatcherInterface::class);
     $batcher2 = $this->app->make(EventBatcherInterface::class);
 
     expect($batcher1)->toBe($batcher2);
 });
 
-it('binds LangfuseClientInterface to LangfuseClient', function () {
-    $client = $this->app->make(LangfuseClientInterface::class);
+it('binds LangfuseClientInterface as scoped', function () {
+    $client1 = $this->app->make(LangfuseClientInterface::class);
+    $client2 = $this->app->make(LangfuseClientInterface::class);
 
-    expect($client)->toBeInstanceOf(LangfuseClient::class);
+    expect($client1)->toBeInstanceOf(LangfuseClient::class)
+        ->and($client1)->toBe($client2);
 });
 
 it('uses NullEventBatcher when disabled', function () {

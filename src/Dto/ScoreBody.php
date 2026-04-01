@@ -9,9 +9,11 @@ use Langfuse\Enums\ScoreDataType;
 
 readonly class ScoreBody implements SerializableInterface
 {
+    public string $id;
+
     public function __construct(
-        public string $id,
         public string $name,
+        ?string $id = null,
         public ?string $traceId = null,
         public ?float $value = null,
         public ?string $stringValue = null,
@@ -19,13 +21,17 @@ readonly class ScoreBody implements SerializableInterface
         public ?string $observationId = null,
         public ?string $comment = null,
         public ?string $configId = null,
-    ) {}
+        public ?string $sessionId = null,
+        public ?string $environment = null,
+    ) {
+        $this->id = $id ?? IdGenerator::uuid();
+    }
 
     public function withTraceId(string $traceId): self
     {
         return new self(
-            id: $this->id,
             name: $this->name,
+            id: $this->id,
             traceId: $traceId,
             value: $this->value,
             stringValue: $this->stringValue,
@@ -33,6 +39,8 @@ readonly class ScoreBody implements SerializableInterface
             observationId: $this->observationId,
             comment: $this->comment,
             configId: $this->configId,
+            sessionId: $this->sessionId,
+            environment: $this->environment,
         );
     }
 
@@ -51,6 +59,8 @@ readonly class ScoreBody implements SerializableInterface
             'observationId' => $this->observationId,
             'comment' => $this->comment,
             'configId' => $this->configId,
+            'sessionId' => $this->sessionId,
+            'environment' => $this->environment,
         ], fn(mixed $value): bool => $value !== null);
     }
 }
