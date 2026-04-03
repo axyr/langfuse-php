@@ -98,3 +98,7 @@ composer pint        # Fix code style
 ## License
 
 MIT
+
+## Author
+
+Built by [Martijn van Nieuwenhoven](https://martijnvannieuwenhoven.com) - Laravel developer specializing in AI integrations and observability tooling.
