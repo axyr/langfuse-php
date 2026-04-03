@@ -2,6 +2,8 @@
 
 # Prism Integration
 
+> See the [example project](https://github.com/axyr/laravel-langfuse-prism-examples) for a working demo.
+
 Auto-instrumentation for [Prism](https://github.com/prism-php/prism) LLM calls. No code changes required.
 
 ## Setup

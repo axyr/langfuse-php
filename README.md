@@ -61,6 +61,14 @@ Optionally publish the configuration file:
 php artisan vendor:publish --tag=langfuse-config
 ```
 
+## Examples
+
+Working example projects for each integration:
+
+- [Laravel AI + Langfuse](https://github.com/axyr/laravel-langfuse-ai-examples) - agents, tools, streaming, and scoring with the official Laravel AI SDK
+- [Prism + Langfuse](https://github.com/axyr/laravel-langfuse-prism-examples) - text, structured output, and streaming with Prism
+- [Neuron AI + Langfuse](https://github.com/axyr/laravel-langfuse-neuron-ai-examples) - agent workflows with Neuron AI
+
 ## Documentation
 
 Full documentation in the [`docs/`](docs/README.md) directory:

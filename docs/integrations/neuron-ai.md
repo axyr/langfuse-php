@@ -2,6 +2,8 @@
 
 # Neuron AI Integration
 
+> See the [example project](https://github.com/axyr/laravel-langfuse-neuron-ai-examples) for a working demo.
+
 Observer-based tracing for [Neuron AI](https://github.com/neuron-core/neuron-ai) agents.
 
 ## Setup

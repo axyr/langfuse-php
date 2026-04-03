@@ -2,6 +2,8 @@
 
 # Laravel AI Integration
 
+> See the [example project](https://github.com/axyr/laravel-langfuse-ai-examples) for a working demo.
+
 Auto-instrumentation for the official [Laravel AI SDK](https://laravel.com/docs/ai-sdk). No code changes required.
 
 ## Setup
