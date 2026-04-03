@@ -78,6 +78,7 @@ class IngestionApiClient implements IngestionApiClientInterface
                 'id' => $error->id,
                 'status' => $error->status,
                 'message' => $error->message,
+                'error' => $error->error ?? null,
             ]);
         }
     }

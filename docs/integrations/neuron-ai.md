@@ -54,3 +54,5 @@ If you use `LangfuseMiddleware`, Neuron AI observations nest under the request t
 ---
 
 Previous: [Laravel AI Integration](laravel-ai.md) | Next: [Middleware](../middleware.md)
+
+Need help? See [Troubleshooting](../troubleshooting.md)

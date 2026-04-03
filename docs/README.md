@@ -20,3 +20,4 @@ For installation and quick start, see the [main README](../README.md).
 - [Batching and Flushing](batching-and-flushing.md) - auto-flush, manual flush, queued dispatch
 - [Testing](testing.md) - fakes, assertions, disabling tracing in tests
 - [Architecture](architecture.md) - system diagram, Octane compatibility
+- [Troubleshooting](troubleshooting.md) - Langfuse v3 compatibility, common issues, debugging

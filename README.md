@@ -41,6 +41,8 @@ Events are batched and flushed automatically. Zero-code auto-instrumentation is 
 
 Requires PHP 8.2+ and Laravel 12 or 13.
 
+**Langfuse Compatibility:** This package is compatible with both Langfuse v2 and v3. For self-hosted deployments, v3 introduces an asynchronous architecture with improved reliability and performance.
+
 ```bash
 composer require axyr/laravel-langfuse
 ```

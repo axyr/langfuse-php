@@ -97,7 +97,7 @@ readonly class LangfuseConfig
         return [
             'batch_size' => $batchSize,
             'sdk_name' => 'langfuse-php',
-            'sdk_version' => '0.1.0',
+            'sdk_version' => '2.0.0',
             'public_key' => $this->publicKey,
         ];
     }
