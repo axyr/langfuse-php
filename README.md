@@ -1,13 +1,12 @@
-
 <p><img src="art/banner.png" alt="Laravel Langfuse" style="border: none; outline: none; box-shadow: none;"></p>
 
 # Laravel Langfuse
 
 [![CI](https://github.com/axyr/laravel-langfuse/actions/workflows/ci.yml/badge.svg)](https://github.com/axyr/laravel-langfuse/actions/workflows/ci.yml)
 
-How much did your LLM calls cost yesterday? Which prompts are slow? Are your RAG answers actually good?
+[Langfuse](https://langfuse.com) is an open-source observability platform for LLM applications. It gives you a dashboard to trace every LLM call, track token usage and costs, manage prompt versions, and evaluate output quality — all in one place. It's self-hostable or available as a managed cloud service.
 
-[Langfuse](https://langfuse.com) answers these questions. This package gives your Laravel app a clean way to send traces, generations, scores, and prompts to Langfuse - the open-source LLM observability platform.
+This package connects your Laravel app to Langfuse. Send traces, generations, scores, and prompts with a clean, idiomatic API — or let the auto-instrumentation do it for you.
 
 ```php
 use Axyr\Langfuse\LangfuseFacade as Langfuse;
@@ -28,6 +27,8 @@ $generation->end(
 ```
 
 Events are batched and flushed automatically. Zero-code auto-instrumentation is available for [Laravel AI](https://laravel.com/docs/ai-sdk), [Prism](https://github.com/prism-php/prism), and [Neuron AI](https://github.com/neuron-core/neuron-ai).
+
+<p><img src="art/langfuse-screenshot.png" alt="Langfuse trace view showing a RAG pipeline with nested spans, token usage, costs, and evaluation scores — all sent from Laravel"></p>
 
 ## Features
 
@@ -54,6 +55,12 @@ LANGFUSE_PUBLIC_KEY=pk-lf-...
 LANGFUSE_SECRET_KEY=sk-lf-...
 ```
 
+Optionally publish the configuration file:
+
+```bash
+php artisan vendor:publish --tag=langfuse-config
+```
+
 ## Documentation
 
 Full documentation in the [`docs/`](docs/README.md) directory:
@@ -69,6 +76,7 @@ Full documentation in the [`docs/`](docs/README.md) directory:
 - [Batching and Flushing](docs/batching-and-flushing.md) - flush control, queued dispatch
 - [Testing](docs/testing.md) - fakes and assertions
 - [Architecture](docs/architecture.md) - system diagram, Octane compatibility
+- [Troubleshooting](docs/troubleshooting.md) - Langfuse v3 compatibility, common issues
 
 ## Contributing
 
