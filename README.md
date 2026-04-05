@@ -3,6 +3,10 @@
 # Laravel Langfuse
 
 [![CI](https://github.com/axyr/laravel-langfuse/actions/workflows/ci.yml/badge.svg)](https://github.com/axyr/laravel-langfuse/actions/workflows/ci.yml)
+[![PHPStan](https://img.shields.io/badge/PHPStan-level%209-brightgreen.svg?style=flat)](https://phpstan.org/)
+[![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-777BB4.svg?style=flat&logo=php)](https://www.php.net/)
+[![Laravel](https://img.shields.io/badge/Laravel-12%20|%2013-FF2D20.svg?style=flat&logo=laravel)](https://laravel.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 [Langfuse](https://langfuse.com) is an open-source observability platform for LLM applications. It gives you a dashboard to trace every LLM call, track token usage and costs, manage prompt versions, and evaluate output quality — all in one place. It's self-hostable or available as a managed cloud service.
 
